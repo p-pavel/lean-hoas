@@ -1,0 +1,43 @@
+# Builds the Verso book (re-checking every proof) on pushes and pull requests,
+# and publishes it with GitHub Pages from the main branch.
+name: Book
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: pages-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      # Keep Lake's artifact cache inside `.lake`, which lean-action caches.
+      LAKE_CACHE_DIR: ${{ github.workspace }}/.lake/artifact-cache
+    steps:
+      - uses: actions/checkout@v7
+      - uses: leanprover/lean-action@v1
+      - run: lake exe lean-hoas
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: _out/html-multi
+
+  deploy:
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5

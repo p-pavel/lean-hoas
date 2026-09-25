@@ -42,6 +42,11 @@ python3.11 -m http.server 8000 -d _out/html-multi
 Then open <http://localhost:8000/>. `lake env` is required so that child
 processes see `LD_LIBRARY_PATH`.
 
+## Publishing
+
+`.github/workflows/pages.yml` builds the book on every push and pull
+request, and deploys `_out/html-multi` with GitHub Pages from `main`.
+
 ## Source conventions
 
 - Named `lean` blocks pair with `leanOutput` blocks. The output is checked at
