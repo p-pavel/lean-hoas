@@ -44,15 +44,19 @@ theorem Exp'.cfold_denote (e : Exp' Ty.denote t) :
   | plus a b iha ihb =>
     simp only [cfold]
     split <;> simp_all [denote]
-  | lam b ih => funext x; exact ih x
+  | lam b ih =>
+    funext x
+    exact ih x
   | app f a ihf iha => simp [cfold, denote, ihf, iha]
 
-theorem Exp.cfold_denote (e : Exp t) : e.cfold.denote = e.denote :=
+theorem Exp.cfold_denote (e : Exp t) :
+    e.cfold.denote = e.denote :=
   Exp'.cfold_denote (e _)
 ```
 
-The `lam` case is everything this proof has to say about binders:
-`funext x; exact ih x`.{margin}[`funext` is function extensionality: two
+The `lam` case is everything this proof has to say about binders: `funext x`,
+then `exact ih x`. Tap each step to watch the goal change.{margin}[`funext`
+is function extensionality: two
 functions are equal when they agree on every argument.] To be fair, a
 first-order version of this particular proof would be short too: evaluate
 with an environment, state the theorem for every environment, and let the

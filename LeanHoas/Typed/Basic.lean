@@ -86,7 +86,8 @@ def Exp'.denote : Exp' Ty.denote t → t.denote
   | lam b => fun x => (b x).denote
   | app f a => f.denote a.denote
 
-def Exp.denote (e : Exp t) : t.denote := (e Ty.denote).denote
+def Exp.denote (e : Exp t) : t.denote :=
+  (e Ty.denote).denote
 ```
 
 ```lean
@@ -94,7 +95,8 @@ def add : Exp (.nat ⇒ .nat ⇒ .nat) := fun _ =>
   lam fun x => lam fun y => plus (var x) (var y)
 
 def twice : Exp ((.nat ⇒ .nat) ⇒ .nat ⇒ .nat) := fun _ =>
-  lam fun f => lam fun x => app (var f) (app (var f) (var x))
+  lam fun f => lam fun x =>
+    app (var f) (app (var f) (var x))
 
 def three : Exp .nat := fun v =>
   app (app (twice v) (app (add v) (const 1))) (const 1)

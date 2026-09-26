@@ -34,7 +34,10 @@ def Term.shift (c : Nat) : Term → Term
 def Term.instantiate (s : Term) : Term → Term := go 0 s
 where
   go (j : Nat) (s : Term) : Term → Term
-    | var k => if k < j then var k else if k = j then s else var (k - 1)
+    | var k =>
+      if k < j then var k
+      else if k = j then s
+      else var (k - 1)
     | lam b => lam (go (j + 1) (s.shift 0) b)
     | app f a => app (go j s f) (go j s a)
 
@@ -53,7 +56,9 @@ Take `(λx. λy. x) y` with `y` free. The result must be a constant function
 returning that free `y`, which now sits one binder deeper:
 
 ```lean
-example : (app (lam (lam (var 1))) (var 0)).beta = lam (var 1) := by decide
+example : (app (lam (lam (var 1))) (var 0)).beta =
+    lam (var 1) := by
+  decide
 
 end DeBruijn
 ```

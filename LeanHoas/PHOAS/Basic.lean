@@ -43,8 +43,11 @@ Names and indices are gone, and binding is Lean's:
 ```lean
 def I : Term := fun _ => lam fun x => var x
 def K : Term := fun _ => lam fun x => lam fun _ => var x
-def two : Term := fun _ => lam fun f => lam fun x => app (var f) (app (var f) (var x))
-def omega : Term := fun _ => lam fun x => app (var x) (var x)
+def two : Term := fun _ =>
+  lam fun f => lam fun x =>
+    app (var f) (app (var f) (var x))
+def omega : Term := fun _ =>
+  lam fun x => app (var x) (var x)
 ```
 
 `two` applies its first argument twice to its second; `omega` applies its
@@ -93,7 +96,8 @@ def Term'.toNamed : Term' String → Nat → Named.Term
     .lam x ((b x).toNamed (n + 1))
   | app f a, n => .app (f.toNamed n) (a.toNamed n)
 
-def Term.toNamed (e : Term) : Named.Term := (e String).toNamed 0
+def Term.toNamed (e : Term) : Named.Term :=
+  (e String).toNamed 0
 ```
 
 ```lean (name := twoNamed)
@@ -116,7 +120,8 @@ def Term'.toDeBruijn : Term' Nat → Nat → DeBruijn.Term
   | lam b, d => .lam ((b d).toDeBruijn (d + 1))
   | app f a, d => .app (f.toDeBruijn d) (a.toDeBruijn d)
 
-def Term.toDeBruijn (e : Term) : DeBruijn.Term := (e Nat).toDeBruijn 0
+def Term.toDeBruijn (e : Term) : DeBruijn.Term :=
+  (e Nat).toDeBruijn 0
 
 example : K.toDeBruijn = .lam (.lam (.var 1)) := rfl
 

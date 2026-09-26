@@ -24,7 +24,8 @@ namespace PHOAS
 open Term'
 
 open Classical in
-noncomputable def chameleon : Term := fun v => if v = Unit then two v else I v
+noncomputable def chameleon : Term := fun v =>
+  if v = Unit then two v else I v
 ```
 
 This is an {tech}[exotic term] of a new kind: it does not inspect its
@@ -37,14 +38,16 @@ and lemmas, plus a standard set, until it closes.]
 ```lean
 theorem string_ne_unit : String ≠ Unit := by
   intro h
-  have : ∀ a b : String, a = b := h ▸ fun (_ _ : Unit) => rfl
+  have : ∀ a b : String, a = b :=
+    h ▸ fun (_ _ : Unit) => rfl
   exact absurd (this "a" "b") (by decide)
 
 example : chameleon.count = 3 := by
   simp [chameleon, Term.count, two, Term'.count]
 
 example : chameleon.toNamed = .lam "x0" (.var "x0") := by
-  simp [chameleon, Term.toNamed, string_ne_unit, I, Term'.toNamed]
+  simp [chameleon, Term.toNamed, Term'.toNamed, I,
+    string_ne_unit]
   rfl
 ```
 
@@ -69,7 +72,8 @@ inductive Term'.Equiv {v₁ v₂ : Type} :
   | app : Equiv Γ f₁ f₂ → Equiv Γ a₁ a₂ →
       Equiv Γ (app f₁ a₁) (app f₂ a₂)
 
-def Term.Wf (e : Term) : Prop := ∀ v₁ v₂, Term'.Equiv [] (e v₁) (e v₂)
+def Term.Wf (e : Term) : Prop :=
+  ∀ v₁ v₂, Term'.Equiv [] (e v₁) (e v₂)
 ```
 
 Honest terms are well-formed by a proof that mirrors their shape:
@@ -77,7 +81,8 @@ Honest terms are well-formed by a proof that mirrors their shape:
 ```lean
 theorem two_wf : two.Wf := fun _ _ =>
   .lam fun _ _ => .lam fun _ _ =>
-    .app (.var (by simp)) (.app (.var (by simp)) (.var (by simp)))
+    .app (.var (by simp))
+      (.app (.var (by simp)) (.var (by simp)))
 ```
 
 The chameleon is not:
@@ -86,7 +91,8 @@ The chameleon is not:
 theorem chameleon_not_wf : ¬ chameleon.Wf := by
   intro h
   have h := h Unit String
-  simp only [chameleon, if_pos, if_neg string_ne_unit, two, I] at h
+  simp only [chameleon, if_pos, if_neg string_ne_unit,
+    two, I] at h
   cases h with
   | lam h => cases h () "x"
 

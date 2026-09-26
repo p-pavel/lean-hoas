@@ -30,7 +30,8 @@ open Term
 def Term.subst (t : Term) (x : String) (s : Term) : Term :=
   match t with
   | var y => if x = y then s else var y
-  | lam y b => if x = y then lam y b else lam y (b.subst x s)
+  | lam y b =>
+    if x = y then lam y b else lam y (b.subst x s)
   | app f a => app (f.subst x s) (a.subst x s)
 ```
 
@@ -44,7 +45,8 @@ Now `(λy. x)[x := y]` should be a constant function returning the _outer_
 `y`. The binder {deftech (key := "capture")}[captures] it instead:
 
 ```lean
-example : (lam "y" (var "x")).subst "x" (var "y") = lam "y" (var "y") := by
+example : (lam "y" (var "x")).subst "x" (var "y") =
+    lam "y" (var "y") := by
   decide
 ```
 

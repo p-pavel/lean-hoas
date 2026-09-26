@@ -36,7 +36,8 @@ def Term'.squash : Term' (Term' v) → Term' v
 def Term1.subst (e : Term1) (s : Term1) : Term1 :=
   fun v z => (e (Term' v) (s v z)).squash
 
-def Term1.toNamed (e : Term1) (free : String) : Named.Term :=
+def Term1.toNamed (e : Term1) (free : String) :
+    Named.Term :=
   (e String free).toNamed 0
 ```
 
@@ -71,9 +72,11 @@ def Term'.headBeta : Term' (Term' v) → Term' v
   | app (lam b) a => (b a.squash).squash
   | e => e.squash
 
-def Term.app (f a : Term) : Term := fun v => .app (f v) (a v)
+def Term.app (f a : Term) : Term :=
+  fun v => .app (f v) (a v)
 
-def Term.headBeta (e : Term) : Term := fun v => (e (Term' v)).headBeta
+def Term.headBeta (e : Term) : Term :=
+  fun v => (e (Term' v)).headBeta
 ```
 
 ```lean (name := twoI)

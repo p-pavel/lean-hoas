@@ -84,7 +84,8 @@ unsafe def toNamed (n : Nat) : Term → Named.Term
   | app f a => .app (toNamed n f) (toNamed n a)
   | free x => .var x
 
-unsafe instance : ToString Term := ⟨fun t => toString (t.toNamed 0)⟩
+unsafe instance : ToString Term :=
+  ⟨fun t => toString (t.toNamed 0)⟩
 
 unsafe def I : Term := lam fun x => x
 unsafe def K : Term := lam fun x => lam fun _ => x

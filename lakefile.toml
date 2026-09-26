@@ -2,9 +2,6 @@ name = "lean-hoas"
 version = "0.1.0"
 defaultTargets = ["LeanHoas", "lean-hoas"]
 enableArtifactCache = true
-# Inline Lean examples must not emit line-length warnings: Verso renders them
-# as hover decorations in HTML.
-moreLeanArgs = ["-Dverso.code.warnLineLength=0"]
 
 [[require]]
 name = "verso"
