@@ -41,8 +41,8 @@ checked by Lean when the book is built.
 *Where to start.* If you know the λ-calculus, α-equivalence, and de Bruijn
 indices, skip ahead to {ref "binders-hard-way"}[Binders, the Hard Way].
 Otherwise start with {ref "built-this-before"}[You Have Built This Before],
-a one-page bridge from the rules and filter languages you may have built to
-the vocabulary used here.
+a short bridge from the rules and filter languages you may have built to the
+vocabulary used here.
 
 *How to read it.* The code in this book is live. Hover over a name, or tap
 it on a phone, to see its type. In a proof, click or tap a step such as
