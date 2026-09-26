@@ -9,9 +9,9 @@ number := false
 tag := "built-this-before"
 %%%
 
-Take the rules language inside a billing, pricing, or workflow system. Often
-nobody planned it; it just grew. This section retells its usual history,
-because the history is the problem this book is about.
+Take the rules language inside a billing, pricing, or workflow system. This
+section retells its usual history, because the history is the problem this
+book is about.
 
 # Expressions Are Easy
 
@@ -59,8 +59,12 @@ knowing which binders are above it.
 
 This is the edge where expressions stop being formulas and start being
 programs. Crossing it is not a matter of more careful programming; the
-problem itself changes. It has a name, _variable binding_, and a construct
-that introduces a name, such as `let` or `order =>`, is a _binder_.
+problem itself changes. The trap is that this transition often happens
+without anyone deciding to design a language. This book cares about one
+consequence of crossing that line: once the little language has binders,
+representing variables becomes surprisingly subtle. The problem has a name,
+_variable binding_, and a construct that introduces a name, such as `let` or
+`order =>`, is a _binder_.
 
 # Now What?
 
