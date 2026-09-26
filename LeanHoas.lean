@@ -1,5 +1,6 @@
 import LeanHoas.Setup
 
+import LeanHoas.Recognition
 import LeanHoas.Named
 import LeanHoas.DeBruijn
 import LeanHoas.Naive
@@ -14,15 +15,9 @@ open Verso.Genre.Manual.InlineLean
 
 #doc (Manual) "Higher-Order Abstract Syntax in Lean" =>
 
-Sooner or later, many programs grow a language. It starts as a filter
-expression, a rule engine, a template or configuration language, a query
-builder, a workflow definition. Once users can write something like "for
-every order `o`, `o.total > 100`", the program has to represent code as data:
-a syntax tree for a language with variables. From then on it must answer the
-questions every language implementer meets. Which `o` does this `o` refer
-to? What happens when one expression is plugged into another?
-
-That is the problem of variable binding, and it is where the bugs are:
+Sooner or later, many programs grow a language: business rules, filters,
+templates, queries, workflows. Once that language has variables, the program
+has to handle variable binding, and binding is where the bugs are:
 variables captured by the wrong definition, off-by-one index errors, and
 theorems that hold only "up to renaming". Higher-order abstract syntax (HOAS)
 hands most of that work to the language the implementation is written in. This
@@ -43,6 +38,13 @@ notes where they first appear, so readers who already know them can skip the
 notes. The Lean code is meant to be read, not memorized, and every block is
 checked by Lean when the book is built.
 
+*Where to start.* If your language work has been rules, filters, and
+configuration rather than compilers, start with
+{ref "built-this-before"}[You Have Built This Before]: it connects what you
+have probably built to the vocabulary used here. If binders and the
+λ-calculus are familiar, skip it and start at
+{ref "binders-hard-way"}[Binders, the Hard Way].
+
 *How to read it.* The code in this book is live. Hover over a name, or tap
 it on a phone, to see its type. In a proof, click or tap a step such as
 `simp` or `funext` to see the proof state at that point: what is known, and
@@ -52,6 +54,8 @@ in the same files, and they open in any editor with Lean support. Clone the
 Lean tells you at once what broke. Good first experiments: make the first
 chapter's `Term.subst` avoid capture, try to write the exotic term against
 parametric HOAS, or break constant folding and watch its proof fail.
+
+{include 1 LeanHoas.Recognition}
 
 {include 1 LeanHoas.Named}
 

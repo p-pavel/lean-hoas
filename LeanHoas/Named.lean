@@ -4,6 +4,9 @@ open Verso.Genre Manual
 open Verso.Genre.Manual.InlineLean
 
 #doc (Manual) "Binders, the Hard Way" =>
+%%%
+tag := "binders-hard-way"
+%%%
 
 A {deftech}[binder] introduces a variable name for some region of code, its
 scope: a function parameter, a `let`, a loop variable, a quantifier such as
@@ -35,11 +38,8 @@ def Term.subst (t : Term) (x : String) (s : Term) : Term :=
   | app f a => app (f.subst x s) (a.subst x s)
 ```
 
-We write `λx. b` for a function with parameter `x` and body `b`,{margin}[`λx. b`
-is the notation of the λ-calculus, the minimal language of functions that
-programming-language theory uses as its laboratory. In Lean it is
-`fun x => b`.] and `t[x := s]` for `t` with `s` substituted for the free
-occurrences of `x`.{margin}[A variable is _free_ in a term when no binder
+In prose we write `λx. b` for `lam x b`, and `t[x := s]` for `t` with `s`
+substituted for the free occurrences of `x`.{margin}[A variable is _free_ in a term when no binder
 inside that term introduces it. In `λy. x`, `x` is free and `y` is bound.]
 Now `(λy. x)[x := y]` should be a constant function returning the _outer_
 `y`. The binder {deftech (key := "capture")}[captures] it instead:
