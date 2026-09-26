@@ -5,9 +5,12 @@ open Verso.Genre.Manual.InlineLean
 
 #doc (Manual) "Nameless, but Not Effortless" =>
 
-De Bruijn indices turn α-equivalence into plain equality: a variable is the
-number of binders between it and its binder. The chore moves into index
-arithmetic, since a term that moves under a binder must be shifted.
+{deftech}[De Bruijn indices] turn {tech (key := "alpha-equivalence")}[α-equivalence]
+into plain equality: a variable is the number of binders between it and its
+binder, so `λx. x` and `λy. y` are both `lam (var 0)`.{margin}[Named after
+Nicolaas de Bruijn, who introduced them in 1972 for the Automath proof
+checker. Lean itself stores bound variables this way.] The chore moves into
+index arithmetic, since a term that moves under a binder must be shifted.
 
 ```lean
 namespace DeBruijn
@@ -37,6 +40,10 @@ def Term.beta : Term → Term
   | t => t
 ```
 
+`beta` performs the one step every evaluator of functions is built from:
+applying `λx. b` to an argument `a` gives `b[x := a]`. It is called
+{deftech}[β-reduction].
+
 Take `(λx. λy. x) y` with `y` free. The result must be a constant function
 returning that free `y`, which now sits one binder deeper:
 
@@ -46,5 +53,5 @@ example : (app (lam (lam (var 1))) (var 0)).beta = lam (var 1) := by decide
 end DeBruijn
 ```
 
-Forget one `shift` and the answer is `lam (var 0)`, that is `λy. y`: capture
-again, just spelled in numbers.
+Forget one `shift` and the answer is `lam (var 0)`, that is `λy. y`:
+{tech (key := "capture")}[capture] again, just spelled in numbers.

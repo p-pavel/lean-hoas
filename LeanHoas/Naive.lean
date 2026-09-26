@@ -6,10 +6,14 @@ open Verso.Genre.Manual.InlineLean
 
 #doc (Manual) "Let the Host Bind" =>
 
-The host language already implements binding, scope, and substitution
-correctly. Higher-order abstract syntax reuses that machinery: the body of an
-object-level λ _is_ a host-level function. Substitution becomes function
-application, and α-equivalence is inherited from the host.
+The {tech}[host language] already implements binding, scope, and
+substitution correctly. {deftech}[Higher-order abstract syntax] reuses that
+machinery. _Abstract syntax_ means the tree, not the text: the structure a
+parser produces. _Higher-order_ is meant as in "higher-order function": the
+tree contains functions. The body of an object-language λ is no longer data
+with a name in it; it _is_ a host-language function, waiting for its
+argument. Substitution becomes function application, and renaming bound
+variables becomes Lean's business instead of ours.
 
 Lean refuses the obvious declaration:
 
@@ -23,8 +27,13 @@ inductive Term where
 (kernel) arg #1 of 'Term.lam' has a non positive occurrence of the datatypes being declared
 ```
 
-This is not pedantry. A type that occurs to the left of its own arrow can
-inhabit the empty type:
+The _kernel_ is Lean's small trusted core, which re-checks every definition.
+It requires a type to occur only _positively_ in its own constructors: never
+to the left of an arrow, as `Term` does in `Term → Term`. This is not
+pedantry. A type that occurs to the left of its own arrow can inhabit the
+empty type:{margin}[`Empty` has no values. A program that produced one would
+let us prove anything, so the kernel rejects such types instead of trusting
+the programmer.]
 
 ```lean
 namespace Naive
@@ -37,11 +46,13 @@ noncomputable unsafe def Liar.paradox : Empty :=
   refute (.mk refute)
 ```
 
-# The idea runs
+# The Idea Runs
 
-Outside the logic, marked `unsafe`, the idea computes. The extra constructor
-`free` is a hole we need in order to look underneath a binder. Keep that in
-mind: it comes back as the central design decision.
+Marked `unsafe`, the idea computes.{margin}[`unsafe` declarations skip the
+kernel's checks. They can run, but no theorem may depend on them. This
+changes the status of the construction; it does not solve the problem.] The
+extra constructor `free` is a hole we need in order to look underneath a
+binder. Keep that in mind: it comes back as the central design decision.
 
 ```lean
 unsafe inductive Term where
@@ -51,9 +62,9 @@ unsafe inductive Term where
 
 namespace Term
 
-unsafe def whnf : Term → Term
-  | app f a => match whnf f with
-    | lam body => whnf (body a)
+unsafe def reduce : Term → Term
+  | app f a => match reduce f with
+    | lam body => reduce (body a)
     | f' => app f' a
   | t => t
 
@@ -70,20 +81,27 @@ unsafe def I : Term := lam fun x => x
 unsafe def K : Term := lam fun x => lam fun _ => x
 ```
 
-No substitution function was written, yet β-reduction works:
+No substitution function was written, yet {tech}[β-reduction] works:
 
 ```lean (name := kab)
-#eval (app (app K (free "a")) (free "b")).whnf
+#eval (app (app K (free "a")) (free "b")).reduce
 ```
 
 ```leanOutput kab
 a
 ```
 
-# The host is too generous
+`toNamed` uses the trick worth remembering: to see inside a function, call it
+with a placeholder and inspect what comes back. You may have used tools that
+do exactly this. Query builders such as Slick or Drizzle call your callback
+`u => u.age > 18` with a symbolic row instead of a real one, to learn which
+query you meant. Tracing compilers such as JAX or PyTorch's `torch.fx` run
+your Python function on placeholder values to record what it computes.
 
-Lean's function space contains far more than λ-bodies. This "term" inspects
-its argument, which no λ-term can do:
+# The Host Is Too Generous
+
+Lean's function space contains far more than λ-bodies. This
+{deftech}[exotic term] inspects its argument, which no λ-term can do:
 
 ```lean
 unsafe def exotic : Term := lam fun
@@ -104,7 +122,7 @@ Looking under its binder, we find a constant function:
 Applying it disagrees:
 
 ```lean (name := exoticApp)
-#eval (app exotic I).whnf
+#eval (app exotic I).reduce
 
 end Term
 end Naive

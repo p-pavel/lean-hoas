@@ -6,10 +6,12 @@ open Verso.Genre.Manual.InlineLean
 
 #doc (Manual) "A Verified Transformation" =>
 
-A program transformation over parametric syntax is written once, for every
-`v`. Its correctness proof then picks the one `v` that matters, the values,
-and becomes a plain structural induction with no contexts, no fresh names,
-and no substitution lemmas.
+Constant folding replaces `1 + 2` by `3` before the program runs. Over
+parametric syntax it is written once, for every `v`. Its correctness proof
+then makes the choice that matters for correctness, the values, and becomes
+a plain structural induction.{margin}[Structural induction is recursion for
+proofs: one case per constructor, with the statement already established for
+the sub-terms.]
 
 ```lean
 namespace Typed
@@ -28,6 +30,8 @@ def Exp'.cfold : Exp' v t → Exp' v t
 def Exp.cfold (e : Exp t) : Exp t := fun v => (e v).cfold
 ```
 
+The theorem: a folded program means the same as the original.
+
 ```lean
 theorem Exp'.cfold_denote (e : Exp' Ty.denote t) :
     e.cfold.denote = e.denote := by
@@ -43,6 +47,15 @@ theorem Exp'.cfold_denote (e : Exp' Ty.denote t) :
 theorem Exp.cfold_denote (e : Exp t) : e.cfold.denote = e.denote :=
   Exp'.cfold_denote (e _)
 ```
+
+The `lam` case is everything this proof has to say about binders:
+`funext x; exact ih x`.{margin}[`funext` is function extensionality: two
+functions are equal when they agree on every argument.] With a first-order
+representation, the same theorem needs machinery of its own: an environment
+for the evaluator, a lemma that looking up a variable in an extended
+environment finds the new value, and weakening and renaming lemmas so that
+the induction hypothesis still applies under a binder. With `v := Ty.denote`,
+Lean's own function binder does that bookkeeping.
 
 Another choice of `v` confirms that folding happened: with nothing stored at
 variables, count the additions that remain.

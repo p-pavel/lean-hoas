@@ -3,11 +3,12 @@ import LeanHoas.Setup
 open Verso.Genre Manual
 open Verso.Genre.Manual.InlineLean
 
-#doc (Manual) "Typed HOAS: Evaluation Without Environments" =>
+#doc (Manual) "Typed PHOAS: Evaluation Without Environments" =>
 
 Index the syntax by object-language types, and the host's type checker
-enforces the object language's typing rules. Ill-typed programs cannot be
-built at all.
+enforces the object language's typing rules: ill-typed programs cannot be
+built at all. The representation of variables becomes a family
+`v : Ty → Type`, so that a variable of object type `t` is a value of `v t`.
 
 ```lean
 namespace Typed
@@ -34,6 +35,12 @@ def Exp (t : Ty) := ∀ v, Exp' v t
 open Exp'
 ```
 
+`Ty.denote` gives each object-language type its meaning as a Lean type:
+`nat` means `Nat`, and an arrow means a Lean function type.{margin}[A
+_denotation_ is what a piece of syntax means in some model, here in Lean
+itself.] Applying a number as if it were a function is rejected by Lean
+before anything runs:
+
 ```lean +error (name := illTyped)
 example : Exp .nat := fun v => app (const 1) (const 2)
 ```
@@ -49,11 +56,15 @@ in the application
   (const 1).app
 ```
 
-# Variables are their values
+# Variables Are Their Values
 
-The payoff of choosing `v`: let a variable _be_ the value it stands for. The
-interpreter needs no environment, no lookup, and no substitution, and it is
-total and type-safe by construction.
+An interpreter for a first-order representation carries an environment: a
+map from variables to their current values, extended at every binder and
+consulted at every variable. PHOAS offers a different choice of `v`: let the
+values themselves represent the variables, `v := Ty.denote`. A λ becomes a
+Lean `fun` that receives the value directly, so there is nothing to extend
+and nothing to look up. The interpreter is total (it always terminates and
+never fails) and type-safe by construction.
 
 ```lean
 def Exp'.denote : Exp' Ty.denote t → t.denote

@@ -6,9 +6,19 @@ open Verso.Genre.Manual.InlineLean
 
 #doc (Manual) "Substitution Is Instantiation" =>
 
-A term with one free variable is a function from variables to terms. To
-substitute, choose the variables to _be_ terms, then flatten the result.
-There is no traversal that renames or shifts anything.
+Substitution is the second choice of `v`, and the least obvious one:
+
+ 1. Normally `v` stands for the object language's variables.
+ 2. For substitution, choose `v` to be syntax itself: `v := Term' v₀`.
+ 3. A term then has type `Term' (Term' v₀)`, a tree whose variables are trees.
+ 4. So a variable can literally contain the term that should replace it.
+ 5. `squash` removes the extra layer, the way flattening turns a list of
+    lists into a list.
+
+Nothing renames or shifts anything.{margin}[For readers who know monads: in
+its variable parameter, `Term'` is a monad, with `var` as `pure` and `squash`
+as `join`. Substitution is `bind`.] A term with one free variable is a
+function from that variable to a term, `Term1`:
 
 ```lean
 namespace PHOAS
@@ -45,11 +55,13 @@ def freeY : Term1 := fun _ y => var y
 ```
 
 The binder and the free variable can never meet: one is a Lean `fun`, the
-other is a value supplied from outside.
+other is a value supplied from outside, so there is nothing to
+{tech (key := "capture")}[capture].
 
-# β-reduction
+# β-Reduction
 
-Head β-reduction on closed terms is the same trick one level up:
+One step of {tech}[β-reduction] at the top of a closed term is the same trick
+one level up:
 
 ```lean
 def Term'.headBeta : Term' (Term' v) → Term' v

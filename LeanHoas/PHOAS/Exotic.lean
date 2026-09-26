@@ -6,11 +6,17 @@ open Verso.Genre.Manual.InlineLean
 
 #doc (Manual) "The Small Print: Parametricity" =>
 
-Quantifying over `v` is meant to stop a term from inspecting `v`. That
-guarantee is _parametricity_, and it is a theorem _about_ Lean's type theory,
-not a statement Lean can use internally. Classical logic can branch on which
-type it was handed, so different interpretations of the "same" term can
-disagree.
+Quantifying over `v` is meant to stop a term from depending on which `v` it
+is given. That guarantee is {deftech}[parametricity]: a polymorphic
+definition behaves the same way at every type.{margin}[The idea is due to
+John Reynolds (1983). Philip Wadler's paper "Theorems for free!" (1989) made
+it popular with programmers.] For many languages it is a theorem _about_ the
+language, proved from outside. Lean's logic does not contain it, and
+classical reasoning can branch on which type a definition was handed. The
+interpretations of the "same" term can then disagree.{margin}[Lean's logic
+includes the law of the excluded middle, so `if v = Unit then … else …` is
+allowed even though no program could decide it. Definitions that use it are
+marked `noncomputable`.]
 
 ```lean
 namespace PHOAS
@@ -20,7 +26,8 @@ open Classical in
 noncomputable def chameleon : Term := fun v => if v = Unit then two v else I v
 ```
 
-Counting sees `two`; printing sees `I`:
+This is an {tech}[exotic term] of a new kind: it does not inspect its
+argument, it inspects the type. Counting sees `two`; printing sees `I`:
 
 ```lean
 theorem string_ne_unit : String ≠ Unit := by
@@ -36,11 +43,14 @@ example : chameleon.toNamed = .lam "x0" (.var "x0") := by
   rfl
 ```
 
-# Well-formedness
+# Well-Formedness
 
-The fix is to state the missing theorem per term instead of for the whole
-type. A term is well-formed when any two of its interpretations have the
-same shape, with variables paired up by their binders:
+The fix is to state the missing uniformity for each term, as a property we
+can prove, instead of expecting the type to guarantee it. Interpret the term
+at two variable types at once, and require the two results to have the same
+shape, with variables paired up by the binder that introduced them. This is
+Reynolds' relational parametricity in miniature: a relation between two
+instantiations that the term must respect.
 
 ```lean
 inductive Term'.Equiv {v₁ v₂ : Type} :
