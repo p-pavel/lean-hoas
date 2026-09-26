@@ -9,15 +9,15 @@ number := false
 tag := "built-this-before"
 %%%
 
-Sooner or later, a large enough application grows a language, whether
-anyone planned one or not. It is called business rules, formulas, filters,
-policies, templates, or workflows. It starts with plain expressions:
+Take the rules language inside a billing, pricing, or workflow system. Often
+nobody planned it; it just grew. It starts with plain expressions:
 
 ```
 price * quantity
 ```
 
-Then someone needs a local value:
+Then someone needs a local value:{margin}[Spreadsheet `LET`, SQL `WITH`, or
+an assignment followed by `return` all have this shape.]
 
 ```
 let discount = customer.discount in price * (1 - discount)
@@ -34,23 +34,31 @@ and another part uses it. That is variable binding. If you have built such a
 system, you have implemented it, perhaps without calling it that, and you
 have met its questions. Which `order` does this `order` refer to when rules
 are nested? What happens when one rule is plugged into another and both use
-the name `x`? When are two rules the same rule with different names? These
-questions have precise answers, worked out long ago, and a precise
-vocabulary; this book uses both.{margin}[Embedding Python or JavaScript
-avoids writing binding yourself, but gives up what made a small language
-attractive: rules that can be inspected, stored, checked, and transformed.]
+the name `order`? When are two rules the same rule with different names?
+These questions have standard answers and standard names: scope, capture,
+α-equivalence, substitution. The next chapters use them.{margin}[Embedding
+Python or JavaScript borrows their variable binding, but turns rules into
+opaque code: you can run them, but not inspect, store, check, or transform
+them. The idea of this book is to borrow the host's binding and keep the
+rules as data.]
 
-The examples so far were deliberately mundane. Now we throw away prices,
-orders, and workflows, and keep only the mechanism that causes the trouble:
-names, and the constructs that introduce them. What remains is the
-λ-calculus, with three constructs and nothing else:
+Now throw away prices, orders, and workflows, and keep only the mechanism
+that causes the trouble: names, where they are introduced, and where they
+are used. That core is the λ-calculus (lambda calculus), and it has three
+constructs:
 
- * `var x` refers to a name introduced somewhere else.
+ * `var x` is a use of the name `x`.
  * `lam x b` introduces `x` and lets the body `b` refer to it: a function
    with parameter `x`, traditionally written `λx. b`, in Lean `fun x => b`.
  * `app f a` applies a function to an argument.
 
-The arrow in `order => order.total > limit` is a `lam`, and
-`let x = e in b` is `app (lam x b) e`. The λ-calculus does not solve anyone's
-business problem. It isolates the part of it we want to study, the way a
-laboratory organism keeps the mechanism of interest and little else.
+In these terms, `order => order.total > limit` is `lam order b`, where the
+body `b` is `order.total > limit`. Each `order` inside `b` is a
+`var order`, and handing that function to `filter` is an `app`. Likewise,
+`let x = e in b` behaves like `app (lam x b) e`: make a one-parameter
+function with body `b`, and call it on `e`.
+
+The λ-calculus does not solve anyone's business problem. It isolates the
+part of it we want to study, the way a laboratory organism keeps the
+mechanism of interest and little else. The next chapter builds it in Lean,
+names first, and shows where it breaks.

@@ -38,12 +38,11 @@ notes where they first appear, so readers who already know them can skip the
 notes. The Lean code is meant to be read, not memorized, and every block is
 checked by Lean when the book is built.
 
-*Where to start.* If your language work has been rules, filters, and
-configuration rather than compilers, start with
-{ref "built-this-before"}[You Have Built This Before]: it connects what you
-have probably built to the vocabulary used here. If binders and the
-λ-calculus are familiar, skip it and start at
-{ref "binders-hard-way"}[Binders, the Hard Way].
+*Where to start.* If you know the λ-calculus, α-equivalence, and de Bruijn
+indices, skip ahead to {ref "binders-hard-way"}[Binders, the Hard Way].
+Otherwise start with {ref "built-this-before"}[You Have Built This Before],
+a one-page bridge from the rules and filter languages you may have built to
+the vocabulary used here.
 
 *How to read it.* The code in this book is live. Hover over a name, or tap
 it on a phone, to see its type. In a proof, click or tap a step such as
@@ -51,8 +50,9 @@ it on a phone, to see its type. In a proof, click or tap a step such as
 what remains to be shown. The sources are literate Lean, with text and code
 in the same files, and they open in any editor with Lean support. Clone the
 [repository](https://github.com/p-pavel/lean-hoas), change an example, and
-Lean tells you at once what broke. Good first experiments: make the first
-chapter's `Term.subst` avoid capture, try to write the exotic term against
+Lean tells you at once what broke. Good first experiments: make `Term.subst`
+in {ref "binders-hard-way"}[Binders, the Hard Way] avoid capture, try to
+write the exotic term against
 parametric HOAS, or break constant folding and watch its proof fail.
 
 {include 1 LeanHoas.Recognition}
