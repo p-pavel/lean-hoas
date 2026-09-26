@@ -10,7 +10,11 @@ scope: a function parameter, a `let`, a loop variable, a quantifier such as
 "for every order `o`". The most direct way to represent a language with
 binders stores names as strings, and immediately inherits two chores:
 deciding when two terms are the same up to renaming, and substituting one
-term into another without mixing variables up.
+term into another without mixing variables up.{margin}[Reading the Lean:
+`inductive` declares a tree-shaped type with the listed constructors.
+`namespace` and `open` scope names, like a module and its import.
+`deriving DecidableEq` generates an equality test. `example` states an
+unnamed fact, and `by decide` proves it by running that test.]
 
 ```lean
 namespace Named

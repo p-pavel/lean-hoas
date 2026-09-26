@@ -5,10 +5,19 @@ open Verso.Genre.Manual.InlineLean
 
 #doc (Manual) "Typed PHOAS: Evaluation Without Environments" =>
 
-Index the syntax by object-language types, and the host's type checker
-enforces the object language's typing rules: ill-typed programs cannot be
-built at all. The representation of variables becomes a family
-`v : Ty → Type`, so that a variable of object type `t` is a value of `v t`.
+The untyped `Term` can be printed and counted, but not evaluated in Lean.
+Its values would need a Lean type `D` of functions from `D` to `D`: the same
+negative occurrence the kernel rejected. The rejection is deserved, because
+`omega` applied to itself runs forever and Lean's functions must terminate.
+
+Types fix this. Index the syntax by object-language types, and the host's
+type checker enforces the object language's typing rules: ill-typed programs
+cannot be built at all, and every well-typed program terminates. Each object
+type gets its own Lean type of values. The representation of variables
+becomes a family `v : Ty → Type`, so that a variable of object type `t` is a
+value of `v t`.{margin}[`Exp'` is an _indexed family_ (Haskell calls it a
+GADT): each constructor fixes the type index of what it builds. `const`
+always builds an `Exp' v .nat`, and `lam` always builds an arrow.]
 
 ```lean
 namespace Typed
@@ -38,8 +47,11 @@ open Exp'
 `Ty.denote` gives each object-language type its meaning as a Lean type:
 `nat` means `Nat`, and an arrow means a Lean function type.{margin}[A
 _denotation_ is what a piece of syntax means in some model, here in Lean
-itself.] Applying a number as if it were a function is rejected by Lean
-before anything runs:
+itself. `abbrev` is a `def` that Lean unfolds freely, which is how `+` on
+`Ty.denote .nat` finds addition on `Nat`. `scoped infixr` makes `a ⇒ b`
+mean `Ty.arrow a b`, grouping to the right, inside this namespace.] Applying
+a number as if it were a function is rejected by Lean before anything runs
+(`?m.5` is a type Lean has not solved yet):
 
 ```lean +error (name := illTyped)
 example : Exp .nat := fun v => app (const 1) (const 2)

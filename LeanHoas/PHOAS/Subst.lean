@@ -6,7 +6,7 @@ open Verso.Genre.Manual.InlineLean
 
 #doc (Manual) "Substitution Is Instantiation" =>
 
-Substitution is the second choice of `v`, and the least obvious one:
+Substitution is the next choice of `v`, and the least obvious one:
 
  1. Normally `v` stands for the object language's variables.
  2. For substitution, choose `v` to be syntax itself: `v := Term' v₀`.
@@ -15,9 +15,11 @@ Substitution is the second choice of `v`, and the least obvious one:
  5. `squash` removes the extra layer, the way flattening turns a list of
     lists into a list.
 
-Nothing renames or shifts anything.{margin}[For readers who know monads: in
-its variable parameter, `Term'` is a monad, with `var` as `pure` and `squash`
-as `join`. Substitution is `bind`.] A term with one free variable is a
+Nothing renames or shifts anything.{margin}[For readers who know monads:
+`var` and `squash` look like `pure` and `join`, and substitution like `bind`.
+But `Term'` is not even a functor in `v`, because a binder takes a `v` as
+input. `squash` works anyway, because a binder's argument can always be
+wrapped back into syntax with `var`.] A term with one free variable is a
 function from that variable to a term, `Term1`:
 
 ```lean
@@ -61,7 +63,8 @@ other is a value supplied from outside, so there is nothing to
 # β-Reduction
 
 One step of {tech}[β-reduction] at the top of a closed term is the same trick
-one level up:
+one level up. `Term.app` applies one closed term to another by instantiating
+both at the same `v`:
 
 ```lean
 def Term'.headBeta : Term' (Term' v) → Term' v
@@ -82,3 +85,6 @@ end PHOAS
 ```leanOutput twoI
 λx0. (λx1. x1) ((λx1. x1) x0)
 ```
+
+That is `λx. I (I x)`: `f` became `I`. The inner applications remain,
+because `headBeta` reduces only at the top.

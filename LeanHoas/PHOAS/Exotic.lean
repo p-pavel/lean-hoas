@@ -8,15 +8,16 @@ open Verso.Genre.Manual.InlineLean
 
 Quantifying over `v` is meant to stop a term from depending on which `v` it
 is given. That guarantee is {deftech}[parametricity]: a polymorphic
-definition behaves the same way at every type.{margin}[The idea is due to
-John Reynolds (1983). Philip Wadler's paper "Theorems for free!" (1989) made
-it popular with programmers.] For many languages it is a theorem _about_ the
+definition behaves the same way at every type.{margin}[The word is
+Christopher Strachey's (1967); the relational formulation used below is John
+Reynolds' (1983). Philip Wadler's paper "Theorems for free!" (1989) made it
+popular with programmers.] For many languages it is a theorem _about_ the
 language, proved from outside. Lean's logic does not contain it, and
 classical reasoning can branch on which type a definition was handed. The
 interpretations of the "same" term can then disagree.{margin}[Lean's logic
 includes the law of the excluded middle, so `if v = Unit then … else …` is
-allowed even though no program could decide it. Definitions that use it are
-marked `noncomputable`.]
+allowed even though no program could decide it. Such definitions cannot be
+compiled, and are marked `noncomputable`.]
 
 ```lean
 namespace PHOAS
@@ -27,7 +28,11 @@ noncomputable def chameleon : Term := fun v => if v = Unit then two v else I v
 ```
 
 This is an {tech}[exotic term] of a new kind: it does not inspect its
-argument, it inspects the type. Counting sees `two`; printing sees `I`:
+argument, it inspects the type. Counting sees `two`; printing sees `I`.
+Lean needs a proof even that `String ≠ Unit`: if the two were equal, `▸`
+would carry "all `Unit` values are equal" over to `String`, giving
+`"a" = "b"`.{margin}[`simp` rewrites the goal with the listed definitions
+and lemmas, plus a standard set, until it closes.]
 
 ```lean
 theorem string_ne_unit : String ≠ Unit := by
@@ -50,7 +55,10 @@ can prove, instead of expecting the type to guarantee it. Interpret the term
 at two variable types at once, and require the two results to have the same
 shape, with variables paired up by the binder that introduced them. This is
 Reynolds' relational parametricity in miniature: a relation between two
-instantiations that the term must respect.
+instantiations that the term must respect. `Γ` lists the pairs of variables
+bound so far.{margin}[An `inductive … → Prop` defines a relation by rules:
+each constructor is one way to establish it. Names such as `Γ` and `b₁` that
+are used without being declared become implicit arguments.]
 
 ```lean
 inductive Term'.Equiv {v₁ v₂ : Type} :

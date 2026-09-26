@@ -30,7 +30,10 @@ def Exp'.cfold : Exp' v t → Exp' v t
 def Exp.cfold (e : Exp t) : Exp t := fun v => (e v).cfold
 ```
 
-The theorem: a folded program means the same as the original.
+The theorem: a folded program means the same as the original. Only `plus`
+needs thought. `split` asks whether both folded sides became constants, and
+`simp_all` closes each case with the induction hypotheses. The other cases
+hold by definition or by one rewrite.
 
 ```lean
 theorem Exp'.cfold_denote (e : Exp' Ty.denote t) :
@@ -50,12 +53,13 @@ theorem Exp.cfold_denote (e : Exp t) : e.cfold.denote = e.denote :=
 
 The `lam` case is everything this proof has to say about binders:
 `funext x; exact ih x`.{margin}[`funext` is function extensionality: two
-functions are equal when they agree on every argument.] With a first-order
-representation, the same theorem needs machinery of its own: an environment
-for the evaluator, a lemma that looking up a variable in an extended
-environment finds the new value, and weakening and renaming lemmas so that
-the induction hypothesis still applies under a binder. With `v := Ty.denote`,
-Lean's own function binder does that bookkeeping.
+functions are equal when they agree on every argument.] To be fair, a
+first-order version of this particular proof would be short too: evaluate
+with an environment, state the theorem for every environment, and let the
+`lam` case extend it. Constant folding never moves code across a binder. The
+gap opens for transformations that do, such as inlining or β-reduction.
+There, first-order proofs need shifting or freshness lemmas; PHOAS proofs
+avoid those, though some need the well-formedness hypothesis instead.
 
 Another choice of `v` confirms that folding happened: with nothing stored at
 variables, count the additions that remain.

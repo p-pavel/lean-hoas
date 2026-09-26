@@ -8,11 +8,14 @@ open Verso.Genre.Manual.InlineLean
 #doc (Manual) "Parametric HOAS" =>
 
 {deftech (key := "PHOAS")}[Parametric HOAS] (PHOAS) makes one change:
-abstract over the type of variables. Binders stay Lean functions, but their
-argument is now an opaque `v` instead of a whole term. `Term'` no longer
-occurs to the left of its own arrow, so the datatype is positive and Lean
-accepts it. Going under a binder means handing it a `v`, and each operation
-is free to choose what `v` is.
+abstract over the type of variables.{margin}[Due to Adam Chlipala (2008),
+building on Geoffrey Washburn and Stephanie Weirich's "Boxes Go Bananas"
+(2003).] Binders stay Lean functions, but their argument is now an opaque `v`
+instead of a whole term. `Term'` no longer occurs to the left of its own
+arrow, so the datatype is positive and Lean accepts it. The exotic term of
+the previous chapter can no longer be written: a binder receives a `v` of
+unknown type, and there is nothing to pattern-match on. Going under a binder
+means handing it a `v`, and each operation is free to choose what `v` is.
 
 ```lean
 namespace PHOAS
@@ -28,8 +31,11 @@ open Term'
 ```
 
 A closed term, one with no free variables, must work for _every_ choice of
-`v`. We read this as "the term cannot depend on what `v` is", a reading
-called {tech}[parametricity]. Lean does not enforce that reading; a later
+`v`.{margin}[`∀ v, Term' v` is the type of functions that take a type `v`
+and return a `Term' v`. So every `Term` below starts with `fun v =>`, or
+`fun _ =>` when the body never mentions `v`. Haskell writes this type
+`forall v. Term' v`.] We read this as "the term cannot depend on what `v`
+is", a reading called {tech}[parametricity]. Lean does not enforce that reading; a later
 chapter shows where it breaks and how to repair it.
 
 Names and indices are gone, and binding is Lean's:
@@ -41,10 +47,15 @@ def two : Term := fun _ => lam fun f => lam fun x => app (var f) (app (var f) (v
 def omega : Term := fun _ => lam fun x => app (var x) (var x)
 ```
 
+`two` applies its first argument twice to its second; `omega` applies its
+argument to itself, and comes back in the chapter on types.
+
 Renaming needs no separately defined relation: renaming the Lean variable
 that stands for an object-language binder does not change the PHOAS term.
-{margin}[`rfl` proves equations that hold by definition, with no reasoning
-beyond unfolding and computation.]
+Lean's own terms use indices for bound variables, so the chore of the
+previous chapter is done once, inside Lean.{margin}[`rfl` proves equations
+that hold by definition, with no reasoning beyond unfolding and
+computation.]
 
 ```lean
 example : I = fun _ => lam fun y => var y := rfl
@@ -94,8 +105,10 @@ def Term.toNamed (e : Term) : Named.Term := (e String).toNamed 0
 ```
 
 With a binder depth per variable, the first-order representation of the
-previous chapter (a tree of plain data, with no functions inside) falls out,
-including the index arithmetic we no longer write by hand anywhere else:
+previous chapter (a tree of plain data, with no functions inside) falls out.
+Each variable stores the depth of its binder, its _de Bruijn level_; at a use
+of depth `d`, the index is the number of binders in between, `d - l - 1`.
+From here on, this is the only index arithmetic in the book:
 
 ```lean
 def Term'.toDeBruijn : Term' Nat → Nat → DeBruijn.Term

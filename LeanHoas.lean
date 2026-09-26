@@ -25,7 +25,7 @@ to? What happens when one expression is plugged into another?
 That is the problem of variable binding, and it is where the bugs are:
 variables captured by the wrong definition, off-by-one index errors, and
 theorems that hold only "up to renaming". Higher-order abstract syntax (HOAS)
-hands all of it to the programming language you are already writing in. This
+hands most of that work to the language the implementation is written in. This
 document builds the idea from scratch in Lean: first the pain, then the naive
 idea and why Lean rejects it, then the parametric version (PHOAS) that works,
 and finally a typed language with an interpreter and a verified optimization.
@@ -68,6 +68,13 @@ operations that need to look at variable identity have to work for it.
  * A PHOAS term is a function, so it has no built-in equality test, printer,
    hash, or serialization. Each is an interpretation you write, like
    `Term.toNamed`.
+ * `Term` quantifies over all types, so it is itself a "large" type, in
+   `Type 1`. Anything declared to take an ordinary `Type`, including the `v`
+   of `Term'` itself, cannot take a `Term`. Code works with `Term' v` inside
+   and quantifies over `v` only at the edges, as `squash` does.
+ * Theorems that relate two interpretations, such as printing and
+   evaluation, need the well-formedness hypothesis, which must be proved for
+   each term they are used on.
  * Questions such as "which variables are free here?" or "are these two
    occurrences the same variable?" need a `v` that can be inspected, such as
    `Nat`, or a conversion to de Bruijn form.
@@ -105,11 +112,13 @@ Every operation chooses the representation of variables that suits it:
 
 # Where HOAS Is Native
 
-Lean's function space is too rich for naive HOAS, which is why PHOAS is
-needed. Logical frameworks make the opposite design choice: their function
-space contains only λ-terms, so naive HOAS is adequate there. Proofs of
-adequacy show that object terms correspond exactly to canonical framework
-terms.
+Naive HOAS fails in Lean for two separate reasons: as an inductive type it
+would make the logic inconsistent, and Lean's functions are rich enough to
+build exotic terms. Logical frameworks avoid both. There,
+`lam : (tm → tm) → tm` is a declared constant rather than an inductive type
+with recursion over it, and the framework's functions contain only λ-terms.
+Naive HOAS is then sound and _adequate_: object terms correspond one-to-one
+to framework terms in normal form.
 
  * [Twelf](https://twelf.org): the LF logical framework with a logic
    programming engine for metatheory.

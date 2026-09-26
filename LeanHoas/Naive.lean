@@ -8,8 +8,11 @@ open Verso.Genre.Manual.InlineLean
 
 The {tech}[host language] already implements binding, scope, and
 substitution correctly. {deftech}[Higher-order abstract syntax] reuses that
-machinery. _Abstract syntax_ means the tree, not the text: the structure a
-parser produces. _Higher-order_ is meant as in "higher-order function": the
+machinery.{margin}[Named by Frank Pfenning and Conal Elliott in 1988. The
+idea goes back to Alonzo Church, whose 1940 theory of types writes
+"for all `x`, `P`" as a constant applied to a function: `Π (λx. P)`.]
+_Abstract syntax_ means the tree, not the text: the structure a parser
+produces. _Higher-order_ is meant as in "higher-order function": the
 tree contains functions. The body of an object-language λ is no longer data
 with a name in it; it _is_ a host-language function, waiting for its
 argument. Substitution becomes function application, and renaming bound
@@ -28,12 +31,12 @@ inductive Term where
 ```
 
 The _kernel_ is Lean's small trusted core, which re-checks every definition.
-It requires a type to occur only _positively_ in its own constructors: never
-to the left of an arrow, as `Term` does in `Term → Term`. This is not
-pedantry. A type that occurs to the left of its own arrow can inhabit the
-empty type:{margin}[`Empty` has no values. A program that produced one would
-let us prove anything, so the kernel rejects such types instead of trusting
-the programmer.]
+It requires a type to occur only _strictly positively_ in its own
+constructors: never to the left of an arrow, as `Term` does in
+`Term → Term`. This is not pedantry. A type that occurs to the left of its
+own arrow lets us build a value of the empty type:{margin}[`Empty` has no
+values. A program that produced one would let us prove anything, so the
+kernel rejects such types instead of trusting the programmer.]
 
 ```lean
 namespace Naive
@@ -46,11 +49,17 @@ noncomputable unsafe def Liar.paradox : Empty :=
   refute (.mk refute)
 ```
 
+Run as a program, `paradox` loops forever; read as a proof, it proves
+anything.{margin}[`.mk f` is short for `Liar.mk f`: Lean infers the type from
+context. `fun | p => e` defines a function by pattern matching.
+`noncomputable` here only tells Lean not to compile the definition.]
+
 # The Idea Runs
 
 Marked `unsafe`, the idea computes.{margin}[`unsafe` declarations skip the
-kernel's checks. They can run, but no theorem may depend on them. This
-changes the status of the construction; it does not solve the problem.] The
+kernel's checks. They can run, but no safe definition or theorem may refer
+to them. This changes the status of the construction; it does not solve the
+problem.] The
 extra constructor `free` is a hole we need in order to look underneath a
 binder. Keep that in mind: it comes back as the central design decision.
 
@@ -93,10 +102,13 @@ a
 
 `toNamed` uses the trick worth remembering: to see inside a function, call it
 with a placeholder and inspect what comes back. You may have used tools that
-do exactly this. Query builders such as Slick or Drizzle call your callback
-`u => u.age > 18` with a symbolic row instead of a real one, to learn which
-query you meant. Tracing compilers such as JAX or PyTorch's `torch.fx` run
-your Python function on placeholder values to record what it computes.
+do exactly this. Scala's Slick library calls the callback in
+`users.filter(_.age > 18)` with a symbolic row instead of a real one, to
+learn which query you meant. Tracing compilers such as JAX or PyTorch's
+`torch.fx` run your Python function on placeholder values to record what it
+computes. They also meet the problem shown next: a single trace cannot
+capture a function that branches on its argument, so such code is rejected
+or only the branch taken is recorded.
 
 # The Host Is Too Generous
 
@@ -134,4 +146,4 @@ saw-a-lambda
 
 So naive HOAS has three problems: Lean rejects it, it admits exotic terms,
 and going under a binder needs a variable the encoding does not have. One
-change addresses all three.
+change addresses all three, the second with a caveat we return to later.

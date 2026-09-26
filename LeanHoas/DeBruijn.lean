@@ -9,8 +9,11 @@ open Verso.Genre.Manual.InlineLean
 into plain equality: a variable is the number of binders between it and its
 binder, so `λx. x` and `λy. y` are both `lam (var 0)`.{margin}[Named after
 Nicolaas de Bruijn, who introduced them in 1972 for the Automath proof
-checker. Lean itself stores bound variables this way.] The chore moves into
-index arithmetic, since a term that moves under a binder must be shifted.
+checker. Lean's own terms are _locally nameless_: indices for bound
+variables, unique identifiers for free ones.] Free variables are indices
+that point past the outermost binder: at the top level, `var 0` is the first
+free variable. The chore moves into index arithmetic, since a term that
+moves under a binder must be shifted.
 
 ```lean
 namespace DeBruijn
@@ -40,9 +43,11 @@ def Term.beta : Term → Term
   | t => t
 ```
 
-`beta` performs the one step every evaluator of functions is built from:
-applying `λx. b` to an argument `a` gives `b[x := a]`. It is called
-{deftech}[β-reduction].
+`beta` performs the computation rule of the λ-calculus: applying `λx. b` to
+an argument `a` gives `b[x := a]`. It is called {deftech}[β-reduction].
+`instantiate` replaces index `j` by `s`, decrements the larger indices
+because one binder has disappeared, and shifts `s` each time it goes under a
+`lam`.
 
 Take `(λx. λy. x) y` with `y` free. The result must be a constant function
 returning that free `y`, which now sits one binder deeper:
