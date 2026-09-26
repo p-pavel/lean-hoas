@@ -5,7 +5,13 @@ A literate introduction to higher-order abstract syntax (HOAS), written in
 same files, and every `lean` block is elaborated. Everything is built from
 scratch: there are no HOAS libraries, and no Mathlib.
 
-Read it online at <https://p-pavel.github.io/lean-hoas/>.
+Read it online at <https://p-pavel.github.io/lean-hoas/>. The code there is
+interactive: hover over a name (tap on a phone) to see its type, and click
+or tap a step in a proof to see the proof state at that point.
+
+Or play with it: the chapters are ordinary Lean files. Open the repository
+in an editor with Lean support, change an example, and Lean re-checks it as
+you type.
 
 Pinned to Lean **4.34.0** and Verso **v4.34.0**.
 
@@ -61,11 +67,29 @@ where HOAS is native) are in `LeanHoas.lean` itself.
 Each chapter imports only the chapters it builds on, so go-to-definition
 works across chapters.
 
-## Build
+## Play with it
 
-The first build compiles Verso from source, which takes several minutes. The
-artifact cache is enabled (`enableArtifactCache`), so other projects pinned
-to the same Verso reuse it.
+You need [elan](https://github.com/leanprover/elan), Lean's version manager,
+and an editor with Lean support, such as VS Code with the Lean 4 extension.
+
+```sh
+git clone https://github.com/p-pavel/lean-hoas.git
+cd lean-hoas
+lake build
+```
+
+The first build downloads Lean 4.34.0 and compiles Verso from source, which
+takes several minutes. After that, open the folder in your editor and edit
+any chapter: errors and proof states appear as you type. To render the HTML
+yourself, run `lake exe lean-hoas` and serve `_out/html-multi` with any
+static file server; opening the files directly breaks search and
+cross-references.
+
+## Build (maintainer's machine)
+
+On the maintainer's FreeBSD machine the commands are niced and run under
+`lake env`. The artifact cache is enabled (`enableArtifactCache`), so other
+projects pinned to the same Verso reuse its build.
 
 ```sh
 export LEAN_NUM_THREADS=2

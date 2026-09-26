@@ -43,6 +43,16 @@ notes where they first appear, so readers who already know them can skip the
 notes. The Lean code is meant to be read, not memorized, and every block is
 checked by Lean when the book is built.
 
+*How to read it.* The code in this book is live. Hover over a name, or tap
+it on a phone, to see its type. In a proof, click or tap a step such as
+`simp` or `funext` to see the proof state at that point: what is known, and
+what remains to be shown. The sources are literate Lean, with text and code
+in the same files, and they open in any editor with Lean support. Clone the
+[repository](https://github.com/p-pavel/lean-hoas), change an example, and
+Lean tells you at once what broke. Good first experiments: make the first
+chapter's `Term.subst` avoid capture, try to write the exotic term against
+parametric HOAS, or break constant folding and watch its proof fail.
+
 {include 1 LeanHoas.Named}
 
 {include 1 LeanHoas.DeBruijn}
